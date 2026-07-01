@@ -74,6 +74,9 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@deno/dnt@0.42",
+      "jsr:@std/assert@1",
+      "jsr:@std/path@1",
       "npm:@msgpack/msgpack@^3.1.2"
     ]
   }
