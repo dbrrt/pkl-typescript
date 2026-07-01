@@ -6,7 +6,10 @@
     "./codegen": "./src/codegen/index.ts"
   },
   "imports": {
-    "@msgpack/msgpack": "npm:@msgpack/msgpack@^3.1.2"
+    "@msgpack/msgpack": "npm:@msgpack/msgpack@^3.1.2",
+    "@std/assert": "jsr:@std/assert@^1",
+    "@std/path": "jsr:@std/path@^1",
+    "@deno/dnt": "jsr:@deno/dnt@^0.42"
   },
   "tasks": {
     "check": "deno check src/index.ts src/codegen/cli.ts",

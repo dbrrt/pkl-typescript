@@ -1,5 +1,5 @@
-import { assertStringIncludes } from "jsr:@std/assert@^1";
-import { fromFileUrl } from "jsr:@std/path@^1";
+import { assertStringIncludes } from "@std/assert";
+import { fromFileUrl } from "@std/path";
 import { generateTypes } from "../src/codegen/index.ts";
 
 const fixture = fromFileUrl(new URL("./fixtures/config.pkl", import.meta.url));

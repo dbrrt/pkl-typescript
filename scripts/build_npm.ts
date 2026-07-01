@@ -4,7 +4,7 @@
 //   deno task build
 //
 // Output is written to ./npm.
-import { build, emptyDir } from "jsr:@deno/dnt@^0.42";
+import { build, emptyDir } from "@deno/dnt";
 
 const outDir = "./npm";
 await emptyDir(outDir);

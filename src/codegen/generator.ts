@@ -3,7 +3,7 @@ import { pathToFileURL } from "node:url";
 import { resolve } from "node:path";
 import { newEvaluator } from "../index.ts";
 import { TextSource } from "../module-source.ts";
-import { PklObject } from "../pkl.ts";
+import type { PklObject } from "../pkl.ts";
 import type { EvaluatorOptions } from "../evaluator-options.ts";
 
 /** A single generated TypeScript file. */

@@ -1,5 +1,5 @@
-import { assert, assertEquals, assertInstanceOf, assertRejects } from "jsr:@std/assert@^1";
-import { fromFileUrl } from "jsr:@std/path@^1";
+import { assert, assertEquals, assertInstanceOf, assertRejects } from "@std/assert";
+import { fromFileUrl } from "@std/path";
 import {
   DataSize,
   Duration,

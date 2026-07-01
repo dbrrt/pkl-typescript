@@ -3,9 +3,9 @@ import { PklBindingError } from "./errors.ts";
 import {
   ClassRef,
   DataSize,
-  DataSizeUnit,
+  type DataSizeUnit,
   Duration,
-  DurationUnit,
+  type DurationUnit,
   IntSeq,
   Pair,
   PklObject,

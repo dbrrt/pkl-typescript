@@ -117,7 +117,11 @@ export class IntSeq {
     if (this.step > 0) {
       for (let i = this.start; i <= this.end; i += this.step) out.push(i);
     } else if (this.step < 0) {
-      for (let i = this.start; i >= this.end; i += this.step) out.push(i);
+      let i = this.start;
+      while (i >= this.end) {
+        out.push(i);
+        i += this.step;
+      }
     }
     return out;
   }

@@ -62,7 +62,7 @@ export class Evaluator {
   }
 
   /** The raw, undecoded Pkl binary bytes for `expr` (or the whole module). */
-  async evaluateRaw(source: ModuleSource, expr: string | undefined): Promise<Uint8Array> {
+  evaluateRaw(source: ModuleSource, expr: string | undefined): Promise<Uint8Array> {
     if (this.closed) throw new PklBindingError("evaluator is closed");
     return this.manager.evaluate(this.evaluatorId, source.uri, source.text, expr);
   }
