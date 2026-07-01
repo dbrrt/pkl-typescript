@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Install Pkl CLI
+        run: |
+          PKL_VERSION=0.31.1
+          curl -fsSL -o pkl \
+            "https://github.com/apple/pkl/releases/download/${PKL_VERSION}/pkl-linux-amd64"
+          chmod +x pkl
+          sudo mv pkl /usr/local/bin/pkl
+          pkl --version
+
+      - name: Type check
+        run: deno task check
+
+      - name: Lint
+        run: deno lint
+
+      - name: Format check
+        run: deno fmt --check
+
+      - name: Test
+        run: deno task test

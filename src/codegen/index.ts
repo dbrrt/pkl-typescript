@@ -1,1 +1,1 @@
-export { generateTypes, type GeneratedFile } from "./generator.ts";
+export { type GeneratedFile, generateTypes } from "./generator.ts";

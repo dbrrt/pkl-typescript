@@ -98,9 +98,16 @@ export class EvaluatorManager {
   }
 
   /** Send an Evaluate Request and resolve with the raw result bytes. */
-  evaluate(evaluatorId: Id, moduleUri: string, moduleText: string | undefined, expr: string | undefined): Promise<Uint8Array> {
+  evaluate(
+    evaluatorId: Id,
+    moduleUri: string,
+    moduleText: string | undefined,
+    expr: string | undefined,
+  ): Promise<Uint8Array> {
     if (this.closed || this.startupError) {
-      return Promise.reject(this.startupError ?? new PklBindingError("evaluator manager is closed"));
+      return Promise.reject(
+        this.startupError ?? new PklBindingError("evaluator manager is closed"),
+      );
     }
     const requestId = this.nextRequestId++;
     const hooks = this.evaluators.get(String(evaluatorId));
@@ -279,8 +286,9 @@ export class EvaluatorManager {
     const hooks = this.evaluators.get(String(body.evaluatorId));
     const readers = kind === "resource" ? hooks?.resourceReaders : hooks?.moduleReaders;
     const reader = readers && readerForUri(readers, body.uri);
-    const responseCode =
-      kind === "resource" ? MessageCode.ListResourcesResponse : MessageCode.ListModulesResponse;
+    const responseCode = kind === "resource"
+      ? MessageCode.ListResourcesResponse
+      : MessageCode.ListModulesResponse;
     const respond = (pathElements?: PathElement[], error?: string) =>
       this.send(responseCode, {
         requestId: body.requestId,

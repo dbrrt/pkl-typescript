@@ -29,7 +29,7 @@ Deno.test("generateTypes: emits interfaces and maps Pkl types", async () => {
   assertStringIncludes(contents, 'method: "GET" | "POST";');
 
   // Runtime type import.
-  assertStringIncludes(contents, 'import type { DataSize, Duration, Pair }');
+  assertStringIncludes(contents, "import type { DataSize, Duration, Pair }");
 
   // Doc comments are carried over.
   assertStringIncludes(contents, "/** The service name. */");

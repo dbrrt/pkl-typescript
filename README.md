@@ -1,18 +1,18 @@
 # pkl-typescript
 
-TypeScript bindings for [Apple Pkl](https://pkl-lang.org). Evaluate Pkl modules
-from TypeScript/JavaScript and get back typed values, and generate `.ts` type
-definitions from your Pkl schemas.
+TypeScript bindings for [Apple Pkl](https://pkl-lang.org). Evaluate Pkl modules from
+TypeScript/JavaScript and get back typed values, and generate `.ts` type definitions from your Pkl
+schemas.
 
 It talks to the `pkl` CLI over Pkl's
 [message-passing API](https://pkl-lang.org/main/current/bindings-specification/message-passing-api.html)
-(MessagePack over stdio), the same protocol the official `pkl-go` and
-`pkl-swift` bindings use. Works on **Deno** and **Node.js (≥ 18)**.
+(MessagePack over stdio), the same protocol the official `pkl-go` and `pkl-swift` bindings use.
+Works on **Deno** and **Node.js (≥ 18)**.
 
 ## Requirements
 
-The [`pkl` CLI](https://pkl-lang.org/main/current/pkl-cli/index.html) must be
-installed and on your `PATH` (or point `PKL_EXECUTABLE` at it):
+The [`pkl` CLI](https://pkl-lang.org/main/current/pkl-cli/index.html) must be installed and on your
+`PATH` (or point `PKL_EXECUTABLE` at it):
 
 ```sh
 # macOS
@@ -25,7 +25,7 @@ brew install pkl
 Deno (from JSR):
 
 ```ts
-import { newEvaluator, FileSource } from "jsr:@authdog/pkl-typescript";
+import { FileSource, newEvaluator } from "jsr:@authdog/pkl-typescript";
 ```
 
 Node (from npm):
@@ -37,7 +37,7 @@ npm install pkl-typescript
 ## Evaluate a module
 
 ```ts
-import { newEvaluator, FileSource, TextSource } from "pkl-typescript";
+import { FileSource, newEvaluator, TextSource } from "pkl-typescript";
 
 const evaluator = await newEvaluator();
 try {
@@ -60,8 +60,8 @@ try {
 }
 ```
 
-`Evaluator` also implements `Symbol.dispose`, so with the `using` keyword you
-don't need the `try/finally`:
+`Evaluator` also implements `Symbol.dispose`, so with the `using` keyword you don't need the
+`try/finally`:
 
 ```ts
 using evaluator = await newEvaluator();
@@ -70,36 +70,36 @@ const config = await evaluator.evaluateModule(FileSource("config.pkl"));
 
 ## How Pkl values map to JavaScript
 
-| Pkl                       | JavaScript                                   |
-| ------------------------- | -------------------------------------------- |
-| `String`                  | `string`                                     |
-| `Int`, `Float`            | `number` (64-bit ints → `bigint`)            |
-| `Boolean`                 | `boolean`                                    |
-| `null`                    | `null`                                       |
-| `List`, `Listing`         | `Array`                                      |
-| `Set`                     | `Set`                                        |
-| `Map`, `Mapping`          | `Map`                                        |
-| typed objects, `Dynamic`  | [`PklObject`](#pklobject)                    |
-| `Duration`                | `Duration`                                   |
-| `DataSize`                | `DataSize`                                   |
-| `Pair`                    | `Pair`                                       |
-| `IntSeq`                  | `IntSeq`                                     |
-| `Regex`                   | `Regex`                                      |
-| `Bytes`                   | `Uint8Array`                                 |
+| Pkl                      | JavaScript                        |
+| ------------------------ | --------------------------------- |
+| `String`                 | `string`                          |
+| `Int`, `Float`           | `number` (64-bit ints → `bigint`) |
+| `Boolean`                | `boolean`                         |
+| `null`                   | `null`                            |
+| `List`, `Listing`        | `Array`                           |
+| `Set`                    | `Set`                             |
+| `Map`, `Mapping`         | `Map`                             |
+| typed objects, `Dynamic` | [`PklObject`](#pklobject)         |
+| `Duration`               | `Duration`                        |
+| `DataSize`               | `DataSize`                        |
+| `Pair`                   | `Pair`                            |
+| `IntSeq`                 | `IntSeq`                          |
+| `Regex`                  | `Regex`                           |
+| `Bytes`                  | `Uint8Array`                      |
 
 ### PklObject
 
-A `PklObject` exposes an object's named properties as ordinary fields, so
-property access and destructuring just work:
+A `PklObject` exposes an object's named properties as ordinary fields, so property access and
+destructuring just work:
 
 ```ts
 const cfg = await evaluator.evaluateModule<PklObject>(FileSource("config.pkl"));
 const { host, port } = cfg;
 ```
 
-Keyed entries and list elements from an object body are available via
-`cfg.entries` (a `Map`) and `cfg.elements` (an array). The Pkl class name and
-defining module are on `cfg.$className` / `cfg.$moduleUri`.
+Keyed entries and list elements from an object body are available via `cfg.entries` (a `Map`) and
+`cfg.elements` (an array). The Pkl class name and defining module are on `cfg.$className` /
+`cfg.$moduleUri`.
 
 ## Custom readers
 
@@ -117,8 +117,8 @@ const evaluator = await newEvaluator({
 });
 ```
 
-Module readers (for resolving Pkl `import`s) follow the same shape via
-`moduleReaders`; see `ModuleReader` / `ResourceReader`.
+Module readers (for resolving Pkl `import`s) follow the same shape via `moduleReaders`; see
+`ModuleReader` / `ResourceReader`.
 
 ## Projects
 
@@ -185,12 +185,18 @@ export interface Endpoint {
 
 ## API
 
-- `newEvaluator(options?, pklCommand?)` — spawn a `pkl server` and return an `Evaluator` that owns it.
-- `newProjectEvaluator(projectDir, options?, pklCommand?)` — as above, configured from a `PklProject`.
-- `Evaluator.evaluateModule(source)` / `evaluateExpression(source, expr)` / `evaluateOutputText(source)` / `evaluateOutputJson(source)` / `evaluateRaw(source, expr?)`.
+- `newEvaluator(options?, pklCommand?)` — spawn a `pkl server` and return an `Evaluator` that owns
+  it.
+- `newProjectEvaluator(projectDir, options?, pklCommand?)` — as above, configured from a
+  `PklProject`.
+- `Evaluator.evaluateModule(source)` / `evaluateExpression(source, expr)` /
+  `evaluateOutputText(source)` / `evaluateOutputJson(source)` / `evaluateRaw(source, expr?)`.
 - Module sources: `FileSource(path)`, `TextSource(text, uri?)`, `UriSource(uri)`.
-- `EvaluatorOptions`: `allowedModules`, `allowedResources`, `properties`, `env`, `modulePaths`, `timeoutSeconds`, `rootDir`, `cacheDir`, `outputFormat`, `moduleReaders`, `resourceReaders`, `logger`. `preconfiguredOptions()` gives CLI-equivalent defaults.
-- Errors: `PklError` (a Pkl evaluation error) and `PklBindingError` (a problem in the binding/process).
+- `EvaluatorOptions`: `allowedModules`, `allowedResources`, `properties`, `env`, `modulePaths`,
+  `timeoutSeconds`, `rootDir`, `cacheDir`, `outputFormat`, `moduleReaders`, `resourceReaders`,
+  `logger`. `preconfiguredOptions()` gives CLI-equivalent defaults.
+- Errors: `PklError` (a Pkl evaluation error) and `PklBindingError` (a problem in the
+  binding/process).
 
 ## Development
 

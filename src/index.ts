@@ -3,38 +3,23 @@ import { pathToFileURL } from "node:url";
 import { isAbsolute, resolve } from "node:path";
 import { buildCreateRequest, buildHooks, Evaluator } from "./evaluator.ts";
 import { EvaluatorManager } from "./evaluator-manager.ts";
-import {
-  type EvaluatorOptions,
-  noopLogger,
-  preconfiguredOptions,
-} from "./evaluator-options.ts";
+import { type EvaluatorOptions, noopLogger, preconfiguredOptions } from "./evaluator-options.ts";
 import { PklBindingError } from "./errors.ts";
 import { decodePklBinary } from "./decoder.ts";
 import type { ProjectOrDependency } from "./messages.ts";
 
-export {
-  Evaluator,
-} from "./evaluator.ts";
+export { Evaluator } from "./evaluator.ts";
 export { EvaluatorManager } from "./evaluator-manager.ts";
 export {
   type EvaluatorOptions,
   type Logger,
   noopLogger,
-  stderrLogger,
   preconfiguredOptions,
+  stderrLogger,
 } from "./evaluator-options.ts";
-export { PklError, PklBindingError } from "./errors.ts";
-export {
-  type ModuleSource,
-  FileSource,
-  TextSource,
-  UriSource,
-} from "./module-source.ts";
-export {
-  type ModuleReader,
-  type ResourceReader,
-  type PathElement,
-} from "./reader.ts";
+export { PklBindingError, PklError } from "./errors.ts";
+export { FileSource, type ModuleSource, TextSource, UriSource } from "./module-source.ts";
+export { type ModuleReader, type PathElement, type ResourceReader } from "./reader.ts";
 export {
   ClassRef,
   DataSize,
@@ -134,7 +119,7 @@ async function loadProject(
       evaluatorId,
       projectFileUri,
       undefined,
-      "import(\"pkl:Project\").resolve(module).dependencies",
+      'import("pkl:Project").resolve(module).dependencies',
     );
     const deps = decodePklBinary(bytes);
     return toProject(projectFileUri, deps);

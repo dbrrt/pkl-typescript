@@ -18,7 +18,7 @@ Deno.test("evaluateExpression: primitive arithmetic", async () => {
   const ev = await newEvaluator();
   try {
     assertEquals(await ev.evaluateExpression(TextSource("res = 1 + 2"), "res"), 3);
-    assertEquals(await ev.evaluateExpression(TextSource("res = \"a\" + \"b\""), "res"), "ab");
+    assertEquals(await ev.evaluateExpression(TextSource('res = "a" + "b"'), "res"), "ab");
     assertEquals(await ev.evaluateExpression(TextSource("res = true"), "res"), true);
   } finally {
     ev.close();
@@ -77,7 +77,7 @@ Deno.test("evaluateExpression: navigate into the module", async () => {
 Deno.test("evaluateOutputText: renders JSON", async () => {
   const ev = await newEvaluator({ outputFormat: "json" });
   try {
-    const text = await ev.evaluateOutputText(TextSource("x = 1\ny = \"hi\""));
+    const text = await ev.evaluateOutputText(TextSource('x = 1\ny = "hi"'));
     const parsed = JSON.parse(text);
     assertEquals(parsed, { x: 1, y: "hi" });
   } finally {
