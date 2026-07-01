@@ -1,0 +1,25 @@
+/// Application configuration.
+module config
+
+/// The service name.
+name: String = "svc"
+replicas: Int = 3
+enabled: Boolean = true
+ratio: Float = 0.5
+timeout: Duration = 30.s
+maxSize: DataSize = 10.mib
+tags: Listing<String> = new { "a"; "b"; "c" }
+labels: Mapping<String, String> = new { ["env"] = "prod" }
+ports: Set<Int> = Set(80, 443)
+coords: Pair<Int, Int> = Pair(1, 2)
+nickname: String? = null
+
+class Endpoint {
+  path: String
+  method: "GET"|"POST" = "GET"
+}
+
+endpoints: Listing<Endpoint> = new {
+  new { path = "/health" }
+  new { path = "/submit"; method = "POST" }
+}

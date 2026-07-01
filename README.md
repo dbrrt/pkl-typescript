@@ -1,0 +1,208 @@
+# pkl-typescript
+
+TypeScript bindings for [Apple Pkl](https://pkl-lang.org). Evaluate Pkl modules
+from TypeScript/JavaScript and get back typed values, and generate `.ts` type
+definitions from your Pkl schemas.
+
+It talks to the `pkl` CLI over Pkl's
+[message-passing API](https://pkl-lang.org/main/current/bindings-specification/message-passing-api.html)
+(MessagePack over stdio), the same protocol the official `pkl-go` and
+`pkl-swift` bindings use. Works on **Deno** and **Node.js (≥ 18)**.
+
+## Requirements
+
+The [`pkl` CLI](https://pkl-lang.org/main/current/pkl-cli/index.html) must be
+installed and on your `PATH` (or point `PKL_EXECUTABLE` at it):
+
+```sh
+# macOS
+brew install pkl
+# or download a release binary from https://github.com/apple/pkl/releases
+```
+
+## Install
+
+Deno (from JSR):
+
+```ts
+import { newEvaluator, FileSource } from "jsr:@authdog/pkl-typescript";
+```
+
+Node (from npm):
+
+```sh
+npm install pkl-typescript
+```
+
+## Evaluate a module
+
+```ts
+import { newEvaluator, FileSource, TextSource } from "pkl-typescript";
+
+const evaluator = await newEvaluator();
+try {
+  // Decode a whole module into a structured object.
+  const config = await evaluator.evaluateModule(FileSource("config.pkl"));
+  console.log(config.host, config.port);
+
+  // Evaluate a single expression.
+  const version = await evaluator.evaluateExpression(
+    FileSource("config.pkl"),
+    "metadata.version",
+  );
+
+  // Render a module's output as text (JSON/YAML/PCF/…).
+  const json = await evaluator.evaluateOutputText(
+    TextSource("x = 1\ny = 2"),
+  ); // with newEvaluator({ outputFormat: "json" })
+} finally {
+  evaluator.close();
+}
+```
+
+`Evaluator` also implements `Symbol.dispose`, so with the `using` keyword you
+don't need the `try/finally`:
+
+```ts
+using evaluator = await newEvaluator();
+const config = await evaluator.evaluateModule(FileSource("config.pkl"));
+```
+
+## How Pkl values map to JavaScript
+
+| Pkl                       | JavaScript                                   |
+| ------------------------- | -------------------------------------------- |
+| `String`                  | `string`                                     |
+| `Int`, `Float`            | `number` (64-bit ints → `bigint`)            |
+| `Boolean`                 | `boolean`                                    |
+| `null`                    | `null`                                       |
+| `List`, `Listing`         | `Array`                                      |
+| `Set`                     | `Set`                                        |
+| `Map`, `Mapping`          | `Map`                                        |
+| typed objects, `Dynamic`  | [`PklObject`](#pklobject)                    |
+| `Duration`                | `Duration`                                   |
+| `DataSize`                | `DataSize`                                   |
+| `Pair`                    | `Pair`                                       |
+| `IntSeq`                  | `IntSeq`                                     |
+| `Regex`                   | `Regex`                                      |
+| `Bytes`                   | `Uint8Array`                                 |
+
+### PklObject
+
+A `PklObject` exposes an object's named properties as ordinary fields, so
+property access and destructuring just work:
+
+```ts
+const cfg = await evaluator.evaluateModule<PklObject>(FileSource("config.pkl"));
+const { host, port } = cfg;
+```
+
+Keyed entries and list elements from an object body are available via
+`cfg.entries` (a `Map`) and `cfg.elements` (an array). The Pkl class name and
+defining module are on `cfg.$className` / `cfg.$moduleUri`.
+
+## Custom readers
+
+Resolve `import`s and `read()`s against schemes your program controls:
+
+```ts
+const evaluator = await newEvaluator({
+  allowedResources: ["secret:", "prop:", "env:"],
+  resourceReaders: [{
+    scheme: "secret",
+    hasHierarchicalUris: false,
+    isGlobbable: false,
+    read: (uri) => fetchSecret(uri.slice("secret:".length)),
+  }],
+});
+```
+
+Module readers (for resolving Pkl `import`s) follow the same shape via
+`moduleReaders`; see `ModuleReader` / `ResourceReader`.
+
+## Projects
+
+To evaluate within a Pkl project (so dependencies resolve):
+
+```ts
+import { newProjectEvaluator } from "pkl-typescript";
+const evaluator = await newProjectEvaluator("./path/to/project-dir");
+```
+
+## Code generation
+
+Generate TypeScript interfaces from a Pkl schema:
+
+```sh
+# Deno
+deno run -A jsr:@authdog/pkl-typescript/codegen/cli -o ./gen config.pkl
+
+# Node (installed via npm)
+npx pkl-gen-typescript -o ./gen config.pkl
+```
+
+or programmatically:
+
+```ts
+import { generateTypes } from "pkl-typescript/codegen";
+const { filename, contents } = await generateTypes("config.pkl");
+```
+
+Given:
+
+```pkl
+/// Application configuration.
+module config
+name: String = "svc"
+replicas: Int = 3
+timeout: Duration = 30.s
+tags: Listing<String> = new { "a"; "b" }
+class Endpoint { path: String; method: "GET"|"POST" = "GET" }
+endpoints: Listing<Endpoint> = new {}
+```
+
+it emits:
+
+```ts
+// Code generated by pkl-gen-typescript. DO NOT EDIT.
+
+import type { Duration } from "pkl-typescript";
+
+/** Application configuration. */
+export interface Config {
+  name: string;
+  replicas: number;
+  timeout: Duration;
+  tags: string[];
+  endpoints: Endpoint[];
+}
+
+export interface Endpoint {
+  path: string;
+  method: "GET" | "POST";
+}
+```
+
+## API
+
+- `newEvaluator(options?, pklCommand?)` — spawn a `pkl server` and return an `Evaluator` that owns it.
+- `newProjectEvaluator(projectDir, options?, pklCommand?)` — as above, configured from a `PklProject`.
+- `Evaluator.evaluateModule(source)` / `evaluateExpression(source, expr)` / `evaluateOutputText(source)` / `evaluateOutputJson(source)` / `evaluateRaw(source, expr?)`.
+- Module sources: `FileSource(path)`, `TextSource(text, uri?)`, `UriSource(uri)`.
+- `EvaluatorOptions`: `allowedModules`, `allowedResources`, `properties`, `env`, `modulePaths`, `timeoutSeconds`, `rootDir`, `cacheDir`, `outputFormat`, `moduleReaders`, `resourceReaders`, `logger`. `preconfiguredOptions()` gives CLI-equivalent defaults.
+- Errors: `PklError` (a Pkl evaluation error) and `PklBindingError` (a problem in the binding/process).
+
+## Development
+
+This repo uses [Deno](https://deno.com) as its toolchain.
+
+```sh
+deno task check   # type-check
+deno task test    # run the test suite (requires pkl on PATH)
+deno task build   # build the npm package into ./npm via dnt
+deno task gen -o ./gen config.pkl   # run the codegen CLI
+```
+
+## License
+
+Apache-2.0

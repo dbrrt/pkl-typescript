@@ -1,0 +1,26 @@
+{
+  "name": "@authdog/pkl-typescript",
+  "version": "0.1.0",
+  "exports": {
+    ".": "./src/index.ts",
+    "./codegen": "./src/codegen/index.ts"
+  },
+  "imports": {
+    "@msgpack/msgpack": "npm:@msgpack/msgpack@^3.1.2"
+  },
+  "tasks": {
+    "check": "deno check src/index.ts src/codegen/cli.ts",
+    "test": "deno test -A",
+    "gen": "deno run -A src/codegen/cli.ts",
+    "build": "deno run -A scripts/build_npm.ts"
+  },
+  "lint": {
+    "rules": {
+      "exclude": ["no-explicit-any", "prefer-const"]
+    }
+  },
+  "fmt": {
+    "lineWidth": 100
+  },
+  "nodeModulesDir": "auto"
+}
